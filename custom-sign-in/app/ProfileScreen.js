@@ -27,10 +27,6 @@ import {
   revokeAccessToken,
   isAuthenticated
 } from '@okta/okta-react-native';
-// import { URLSearchParams } from 'url';
-import { parse, build, omit, keep } from 'search-params'
-
-
 import Spinner from 'react-native-loading-spinner-overlay';
 import configFile from './../samples.config';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -145,7 +141,7 @@ export default class ProfileScreen extends React.Component {
           </Text>
           <Text style={styles.titleDetails}>Login: {userProfile.login}</Text>
           <Text style={styles.titleDetails}>
-            Session expires: {userProfile.expiresAt}
+            Session expires: {transaction.expiresAt}
           </Text>
           {accessTokenArea}
         </SafeAreaView>
