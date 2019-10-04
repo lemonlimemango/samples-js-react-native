@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2019, Okta, Inc. and/or its affiliates. All rights reserved.
  * The Okta software accompanied by this notice is provided pursuant to the Apache License, Version 2.0 (the "License.")
  *
@@ -24,9 +24,16 @@ import {
   authenticate,
   getAccessToken,
   EventEmitter,
+  revokeAccessToken,
+  isAuthenticated
 } from '@okta/okta-react-native';
+// import { URLSearchParams } from 'url';
+import { parse, build, omit, keep } from 'search-params'
+
+
 import Spinner from 'react-native-loading-spinner-overlay';
 import configFile from './../samples.config';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default class ProfileScreen extends React.Component {
   static navigationOptions = {
@@ -84,6 +91,16 @@ export default class ProfileScreen extends React.Component {
     authenticate({sessionToken});
   }
 
+  async revokeTokens() {
+    const revokeAccessTokenResult = await revokeAccessToken();
+
+    console.log('revokeAccessTokenResult: ', revokeAccessTokenResult);
+
+    const isAuthenticatedResult = await isAuthenticated();
+
+    console.log('isAuthenticatedResult: ', isAuthenticatedResult);
+  }
+
   render() {
     const {navigation} = this.props;
     const transaction = navigation.getParam('transaction', 'NO-ID');
@@ -94,6 +111,9 @@ export default class ProfileScreen extends React.Component {
         <View style={{marginTop: 60, height: 140}}>
           <Text>Access Token:</Text>
           <Text style={{marginTop: 20}}>{this.state.accessToken}</Text>
+          <TouchableOpacity onPress={async () => this.revokeTokens()}>
+            <Text style={{ color: 'blue', marginTop: 100 }}>Revoke Tokens</Text>
+          </TouchableOpacity>
         </View>
       );
     } else {
@@ -125,7 +145,7 @@ export default class ProfileScreen extends React.Component {
           </Text>
           <Text style={styles.titleDetails}>Login: {userProfile.login}</Text>
           <Text style={styles.titleDetails}>
-            Session expires: {transaction.expiresAt}
+            Session expires: {userProfile.expiresAt}
           </Text>
           {accessTokenArea}
         </SafeAreaView>
