@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2019, Okta, Inc. and/or its affiliates. All rights reserved.
  * The Okta software accompanied by this notice is provided pursuant to the Apache License, Version 2.0 (the "License.")
  *
@@ -24,9 +24,11 @@ import {
   authenticate,
   getAccessToken,
   EventEmitter,
+  refreshTokens
 } from '@okta/okta-react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import configFile from './../samples.config';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default class ProfileScreen extends React.Component {
   static navigationOptions = {
@@ -84,6 +86,17 @@ export default class ProfileScreen extends React.Component {
     authenticate({sessionToken});
   }
 
+  async refreshTokens() {
+    try {
+      const newTokens = await refreshTokens();
+      console.log('newTokens', newTokens);
+    } catch (error) {
+      console.warn('failed to refresh', error)
+      console.warn('error string-ified', JSON.stringify(error))
+    }
+    
+  }
+
   render() {
     const {navigation} = this.props;
     const transaction = navigation.getParam('transaction', 'NO-ID');
@@ -94,6 +107,10 @@ export default class ProfileScreen extends React.Component {
         <View style={{marginTop: 60, height: 140}}>
           <Text>Access Token:</Text>
           <Text style={{marginTop: 20}}>{this.state.accessToken}</Text>
+          <TouchableOpacity onPress={async () => this.refreshTokens()}>
+            <Text style={{ color: 'blue', marginTop: 100 }}>Refresh Tokens</Text>
+          </TouchableOpacity>
+
         </View>
       );
     } else {
