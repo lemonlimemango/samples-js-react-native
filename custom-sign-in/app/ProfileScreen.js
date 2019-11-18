@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2019, Okta, Inc. and/or its affiliates. All rights reserved.
  * The Okta software accompanied by this notice is provided pursuant to the Apache License, Version 2.0 (the "License.")
  *
@@ -18,11 +18,13 @@ import {
   Text,
   View,
   StatusBar,
+  ScrollView
 } from 'react-native';
 import {
   createConfig,
   authenticate,
   getAccessToken,
+  refreshTokens,
   EventEmitter,
 } from '@okta/okta-react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -37,7 +39,7 @@ export default class ProfileScreen extends React.Component {
     super();
     this.state = {
       authenticated: false,
-      accessToken: null,
+      accessTokens: [],
       progress: false,
     };
   }
@@ -74,7 +76,7 @@ export default class ProfileScreen extends React.Component {
 
   async getAccessToken() {
     const promise = await getAccessToken();
-    this.setState({accessToken: promise.access_token});
+    this.setState({accessTokens: [...this.state.accessTokens, `getAccessToken(): ${promise.access_token}`]});
     this.setState({authenticated: true});
     this.setState({progress: false});
   }
@@ -91,10 +93,15 @@ export default class ProfileScreen extends React.Component {
     let accessTokenArea;
     if (this.state.authenticated) {
       accessTokenArea = (
-        <View style={{marginTop: 60, height: 140}}>
+        <ScrollView style={{marginTop: 60, height: 140}}>
           <Text>Access Token:</Text>
-          <Text style={{marginTop: 20}}>{this.state.accessToken}</Text>
-        </View>
+          {this.state.accessTokens.map((token, i) => <Text key={i} style={{marginTop: 20}}>{token}</Text>)}
+          <Button onPress={async () => {
+            const tokens = await refreshTokens();
+            this.setState({ accessTokens: [...this.state.accessTokens, `refreshTokens(): ${tokens.access_token}`] })
+            this.getAccessToken();
+          }} title="Refresh Tokens" />
+        </ScrollView>
       );
     } else {
       accessTokenArea = (
